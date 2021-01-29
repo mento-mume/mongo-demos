@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/mongo-exercises')
+mongoose.connect('mongodb://localhost/mongo-exercises',{
+    useNewUrlParser: true,
+    useUnifiedTopology:true,
+    useFindAndModify:false,
+    useCreateIndex:true,
+})
         .then(()=>console.log('connected to database'))
         .catch(err =>console.error('could not connect to datatbase',err));
 

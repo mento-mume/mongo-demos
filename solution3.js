@@ -8,7 +8,7 @@ mongoose.connect('mongodb://localhost/mongo-exercises')
             tag:[String],
             date:{type:Date, default:Date.now},
             name:String,
-            aothor:String,
+            author:String,
             isPublished:Boolean,
             price:Number
         });

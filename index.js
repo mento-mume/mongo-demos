@@ -11,25 +11,58 @@ mongoose.connect('mongodb://localhost/playground', {
     .catch(err => console.error('Could not connect to Mongodb...',err));
 
     const courseSchema = new mongoose.Schema({
-        name:String,
+        name:{type:String, required:true},
+        category:{
+            type:String,
+            required:true,
+            enum:['web','mobile','backend']
+
+        },
         author:String,
-        tag:[String],
+        tag:{
+            type:Array,
+
+            validate:{
+                isAsync:true,
+                validator:
+                function(v,callback){
+
+                    setTimeout(()=>{ 
+                        const result = v && v.length>0;
+                        callback(result);
+                    },4000)
+                   
+                },
+                message:'a course should have atleast one tag'
+            
+        }
+        },
         date:{type:Date, default:Date.now},
-        isPublished:Boolean
+        isPublished:Boolean,
+        price:{type:Number, required: function(){return this.isPublished}}
     });
 
     const Course = new mongoose.model('Course',courseSchema);
     async function createCourse(){
         const course = new Course({
             name:'Angular Course',
+            category:'_',
             author:'Mosh',
-            tag:['angular','frontend'],
-            isPublished:true
-    
+            tag:[],
+            isPublished:true,
+            price:10   
         });
 
-        const result = await course.save();
-        console.log(result);
+        try {
+            const result = await course.save();
+            console.log(result);
+            
+        } catch (error) {
+            for (field in error.errors){
+                console.log(error.errors[field].message);
+            }
+            
+        }
 
     }
 
@@ -60,7 +93,7 @@ mongoose.connect('mongodb://localhost/playground', {
      */
 
      /**
-      * 
+      * 0
       * @param {*} id 
       * 
       *  async function updateCourse(id){
@@ -77,21 +110,20 @@ mongoose.connect('mongodb://localhost/playground', {
 
 
     async function updateCourse(id){
-        try {
-            const course = await Course.findByIdAndUpdate({_id:id},{
-                $set:{
+        const course = await Course.findByIdAndUpdate(id,{
+            $set:{
                      author:'jason',
                      isPublished:false
                  }
-             },{new:true});
-             return course;
-        } catch (error) {
-            console.log(error);
-        }
-
-
-            
-      //  console.log(course);
+        },{new:true});         
+      console.log(course);
     }
-    updateCourse('5a68fdf95db93f6477053ddd');
+
+    async function deleteCourse(id){
+        const result = await Course.deleteOne({_id:id});
+        console.log(result);
+    }
+    createCourse();
+
+
     
